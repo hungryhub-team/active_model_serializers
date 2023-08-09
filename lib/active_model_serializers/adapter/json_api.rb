@@ -249,13 +249,11 @@ module ActiveModelSerializers
         resource_identifier = ResourceIdentifier.new(serializer, instance_options).as_json
         return false unless @resource_identifiers.add?(resource_identifier)
 
-        key = "#{serializer.cache_key(serializer.object)}:#{CityHash.hash32(instance_options)}"
+        key = "#{serializer.cache_key(serializer.object)}:#{CityHash.hash32(instance_options)}:v1"
         cached_object = Rails.cache.fetch(key, expires_in: rand(24).hours) do
-          ActiveSupport::Gzip.compress(
-            resource_object_for(serializer, include_slice).to_json
-          )
+          resource_object_for(serializer, include_slice).to_json
         end
-        resource_object = JSON.load ActiveSupport::Gzip.decompress(cached_object)
+        resource_object = JSON.load(cached_object)
 
         if primary
           @primary << resource_object

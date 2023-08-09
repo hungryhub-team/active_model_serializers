@@ -249,7 +249,14 @@ module ActiveModelSerializers
         resource_identifier = ResourceIdentifier.new(serializer, instance_options).as_json
         return false unless @resource_identifiers.add?(resource_identifier)
 
-        resource_object = resource_object_for(serializer, include_slice)
+        key = "#{serializer.class.name}:#{serializer.object.id}:#{I18n.locale}:#{instance_options}"
+        cached_object = Rails.cache.fetch(key, expires_in: 24.hours) do
+          ActiveSupport::Gzip.compress(
+            Marshal.dump(resource_object_for(serializer, include_slice))
+          )
+        end
+        resource_object = Marshal.load(ActiveSupport::Gzip.decompress(cached_object))
+
         if primary
           @primary << resource_object
         else

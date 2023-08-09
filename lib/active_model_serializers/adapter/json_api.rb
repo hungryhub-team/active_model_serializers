@@ -252,10 +252,10 @@ module ActiveModelSerializers
         key = "#{serializer.cache_key(serializer.object)}:#{CityHash.hash32(instance_options)}"
         cached_object = Rails.cache.fetch(key, expires_in: rand(24).hours) do
           ActiveSupport::Gzip.compress(
-            Marshal.dump(resource_object_for(serializer, include_slice))
+            resource_object_for(serializer, include_slice).to_json
           )
         end
-        resource_object = Marshal.load(ActiveSupport::Gzip.decompress(cached_object))
+        resource_object = JSON.load ActiveSupport::Gzip.decompress(cached_object)
 
         if primary
           @primary << resource_object

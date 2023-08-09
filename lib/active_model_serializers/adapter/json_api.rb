@@ -250,7 +250,7 @@ module ActiveModelSerializers
         return false unless @resource_identifiers.add?(resource_identifier)
 
         key = "#{serializer.class.name}:#{serializer.object.id}:#{I18n.locale}:#{instance_options}"
-        cached_object = Rails.cache.fetch(key, expires_in: 24.hours) do
+        cached_object = Rails.cache.fetch(key, expires_in: rand(24).hours) do
           ActiveSupport::Gzip.compress(
             Marshal.dump(resource_object_for(serializer, include_slice))
           )

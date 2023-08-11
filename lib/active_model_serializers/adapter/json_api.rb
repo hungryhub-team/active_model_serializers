@@ -249,7 +249,7 @@ module ActiveModelSerializers
         resource_identifier = ResourceIdentifier.new(serializer, instance_options).as_json
         return false unless @resource_identifiers.add?(resource_identifier)
 
-        key = "#{serializer.cache_key(serializer.object)}:#{include_slice.as_json}:v1"
+        key = "ams:#{serializer.class.name}:#{serializer.cache_key(serializer.object)}:#{include_slice.as_json}"
         cached_object = Rails.cache.fetch(key, expires_in: rand(24).hours) do
           resource_object_for(serializer, include_slice).to_json
         end
